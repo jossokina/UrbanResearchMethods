@@ -10,6 +10,22 @@ library(xgboost)      # XGBoost
 library(stargazer)    # summary tables
 library(tibble)       # tibble support
 library(Metrics)
+source("scripts/helpers.R") # contains the function summarize_feature_importance_trees()
+
+# -----------------------------
+# Constants
+# -----------------------------
+CART_CP <- 0.001
+
+MTRY_RF <- 24
+NTREE_RF <- 200
+
+NROUNDS_XG <- 100
+MAX_DEPTH_XG <- 7
+ETA_XG <- 0.1
+COLSAMPLE_XG <- 1
+MIN_CHILD_WEIGHT_XG <- 1
+SUBSAMPLE_XG <- 0.7
 
 # -----------------------------
 # Load datasets
