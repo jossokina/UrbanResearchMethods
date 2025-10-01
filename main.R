@@ -8,6 +8,9 @@ library(stargazer)
 library(Metrics)
 library(olsrr)
 
+# Create directories for saving tables
+dir.create(file.path("tables"), recursive = TRUE)
+
 # -----------------------------
 # Load datasets
 # -----------------------------
