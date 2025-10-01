@@ -11,11 +11,15 @@ library(stargazer)    # summary tables
 library(tibble)       # tibble support
 library(Metrics)
 
+# Create directories for saving tables
+dir.create(file.path("tables"), recursive = TRUE)
+
+source("helpers.R")
 # -----------------------------
 # Load datasets
 # -----------------------------
-train <- read.csv("data/trainDataset.csv")
-test  <- read.csv("data/testDataset.csv")
+train <- read.csv("data/train_trees.csv")
+test  <- read.csv("data/test_trees.csv")
 
 # target variable
 target_col <- "speed_main"
