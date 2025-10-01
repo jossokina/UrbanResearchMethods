@@ -11,6 +11,8 @@ library(stargazer)    # summary tables
 library(tibble)       # tibble support
 library(Metrics)
 
+dir.create(file.path("tables"), recursive = TRUE)
+
 source("scripts/helpers.R") # contains the function summarize_feature_importance_trees()
 
 # -----------------------------
