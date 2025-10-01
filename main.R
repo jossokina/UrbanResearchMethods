@@ -10,6 +10,7 @@ library(xgboost)      # XGBoost
 library(stargazer)    # summary tables
 library(tibble)       # tibble support
 library(Metrics)
+
 source("scripts/helpers.R") # contains the function summarize_feature_importance_trees()
 
 # -----------------------------
@@ -30,8 +31,8 @@ SUBSAMPLE_XG <- 0.7
 # -----------------------------
 # Load datasets
 # -----------------------------
-train <- read.csv("data/trainDataset.csv")
-test  <- read.csv("data/testDataset.csv")
+train <- read.csv("data/train_trees.csv")
+test  <- read.csv("data/test_trees.csv")
 
 # target variable
 target_col <- "speed_main"
