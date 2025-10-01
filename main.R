@@ -1,5 +1,5 @@
 # =====================================================
-# Detector Speed Forecasting - Linear Models
+# Detector Speed Forecasting - Data Preprocessing (Part 1)
 # =====================================================
 library(dplyr)
 library(tidyr)
@@ -23,3 +23,20 @@ target_col <- "speed_main"
 # Print first few rows to check the datasets
 head(train)
 head(test)
+
+# -----------------------------
+# Question 1
+# -----------------------------
+
+# -----------------------------
+# Question 2
+# -----------------------------
+
+# -----------------------------
+# Question 3
+# -----------------------------
+
+
+# -----------------------------
+# Question 4
+# -----------------------------
