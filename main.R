@@ -36,9 +36,10 @@ SUBSAMPLE_XG <- 0.7
 train <- read.csv("data/train_trees.csv")
 test  <- read.csv("data/test_trees.csv")
 
-# target variable
-target_col <- "speed_main"
-
 # Print first few rows to check the datasets
 head(train)
 head(test)
+
+# -----------------------------
+# Question 1
+# -----------------------------
