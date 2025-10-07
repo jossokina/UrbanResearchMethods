@@ -1,5 +1,5 @@
 # =====================================================
-# Detector Speed Forecasting - Linear Models
+# Detector Speed Forecasting - Linear Models (part 2)
 # =====================================================
 library(dplyr)
 library(tidyr)
@@ -14,8 +14,8 @@ dir.create(file.path("tables"), recursive = TRUE)
 # -----------------------------
 # Load datasets
 # -----------------------------
-train <- read.csv("data/trainDataset.csv")
-test  <- read.csv("data/testDataset.csv")
+train <- read.csv("data/train_clean.csv")
+test  <- read.csv("data/test_clean.csv")
 
 # target variable
 target_col <- "speed_main"
@@ -23,3 +23,21 @@ target_col <- "speed_main"
 # Print first few rows to check the datasets
 head(train)
 head(test)
+
+# -----------------------------
+# Question 1
+# -----------------------------
+
+
+# -----------------------------
+# Question 2
+# -----------------------------
+
+
+# -----------------------------
+# Question 3
+# -----------------------------
+
+# -----------------------------
+# Question 4
+# -----------------------------

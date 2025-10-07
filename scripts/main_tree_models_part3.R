@@ -11,19 +11,35 @@ library(stargazer)    # summary tables
 library(tibble)       # tibble support
 library(Metrics)
 
-# Create directories for saving tables
 dir.create(file.path("tables"), recursive = TRUE)
 
-source("helpers.R")
+source("scripts/helpers.R") # contains the function summarize_feature_importance_trees()
+
+# -----------------------------
+# Constants
+# -----------------------------
+CART_CP <- 0.001
+
+MTRY_RF <- 24
+NTREE_RF <- 200
+
+NROUNDS_XG <- 100
+MAX_DEPTH_XG <- 7
+ETA_XG <- 0.1
+COLSAMPLE_XG <- 1
+MIN_CHILD_WEIGHT_XG <- 1
+SUBSAMPLE_XG <- 0.7
+
 # -----------------------------
 # Load datasets
 # -----------------------------
 train <- read.csv("data/train_trees.csv")
 test  <- read.csv("data/test_trees.csv")
 
-# target variable
-target_col <- "speed_main"
-
 # Print first few rows to check the datasets
 head(train)
 head(test)
+
+# -----------------------------
+# Question 1
+# -----------------------------
