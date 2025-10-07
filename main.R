@@ -33,8 +33,8 @@ SUBSAMPLE_XG <- 0.7
 # -----------------------------
 # Load datasets
 # -----------------------------
-train <- read.csv("data/train_trees.csv")
-test  <- read.csv("data/test_trees.csv")
+train <- read.csv("data/train_clean.csv")
+test  <- read.csv("data/test_clean.csv")
 
 # Print first few rows to check the datasets
 head(train)
