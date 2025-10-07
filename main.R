@@ -14,8 +14,8 @@ dir.create(file.path("tables"), recursive = TRUE)
 # -----------------------------
 # Load datasets
 # -----------------------------
-train <- read.csv("data/trainDataset.csv")
-test  <- read.csv("data/testDataset.csv")
+train <- read.csv("data/train_clean.csv")
+test  <- read.csv("data/test_clean.csv")
 
 # target variable
 target_col <- "speed_main"
@@ -40,13 +40,4 @@ head(test)
 
 # -----------------------------
 # Question 4
-# -----------------------------
-
-
-# -----------------------------
-# Question 5
-# -----------------------------
-
-# -----------------------------
-# Question 6
 # -----------------------------
