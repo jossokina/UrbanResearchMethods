@@ -1,6 +1,6 @@
-# =====================================================
-# Detector Speed Forecasting - Data Preprocessing (Part 1)
-# =====================================================
+# ==========================================================
+# Data Challenge 1 - Data analysis and variable selection
+# ==========================================================
 library(dplyr)
 library(tidyr)
 library(caret)
@@ -10,19 +10,20 @@ library(olsrr)
 
 # Create directories for saving tables
 dir.create(file.path("tables"), recursive = TRUE)
+dir.create(file.path("figures"), recursive = TRUE)
 
 # -----------------------------
 # Load datasets
 # -----------------------------
-train <- read.csv("data/trainDataset.csv")
-test  <- read.csv("data/testDataset.csv")
+train_dataset <- read.csv("data/dc1_trainDataset.csv")
+test_dataset  <- read.csv("data/dc1_testDataset.csv")
 
 # target variable
 target_col <- "speed_main"
 
 # Print first few rows to check the datasets
-head(train)
-head(test)
+head(train_dataset)
+head(test_dataset)
 
 # -----------------------------
 # Question 1
@@ -36,7 +37,10 @@ head(test)
 # Question 3
 # -----------------------------
 
-
 # -----------------------------
 # Question 4
+# -----------------------------
+
+# -----------------------------
+# Question 5
 # -----------------------------
