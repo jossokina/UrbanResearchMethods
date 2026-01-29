@@ -1,0 +1,18 @@
+
+% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
+% Date and time: Τετ, Ιαν 28, 2026 - 6:15:36 μμ
+\begin{table}[!htbp] \centering 
+  \caption{Comparison of Models: MAE, MSE, R-squared} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+Model & MAE & MSE & R2 & R2\_adj \\ 
+\hline \\[-1.8ex] 
+Flow only & $10.352$ & $134.069$ & $0.097$ & $0.096$ \\ 
+All - speed ngh & $6.302$ & $79.358$ & $0.284$ & $0.280$ \\ 
+All & $2.716$ & $23.729$ & $0.536$ & $0.533$ \\ 
+Step forward & $2.660$ & $23.260$ & $0.535$ & $0.533$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
