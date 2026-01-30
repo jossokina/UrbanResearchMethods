@@ -1,0 +1,96 @@
+# =====================================================
+# Data CHallenge 3 - Tree Models
+# =====================================================
+library(dplyr)
+library(tidyr)        # bind_cols()
+library(caret)        # train(), preProcess()
+library(rpart)        # CART backend
+library(randomForest) # Random Forest
+library(xgboost)      # XGBoost
+library(stargazer)    # summary tables
+library(tibble)       # tibble support
+library(Metrics)
+
+dir.create(file.path("tables"), recursive = TRUE)
+dir.create(file.path("figures"), recursive = TRUE)
+
+source("scripts/helpers.R") # contains the function summarize_feature_importance_trees()
+
+# -----------------------------
+# Constants
+# -----------------------------
+CART_CP <- 0.001
+
+MTRY_RF <- 24
+NTREE_RF <- 200
+
+NROUNDS_XG <- 100
+MAX_DEPTH_XG <- 7
+ETA_XG <- 0.1
+COLSAMPLE_XG <- 1
+MIN_CHILD_WEIGHT_XG <- 1
+SUBSAMPLE_XG <- 0.7
+
+# -----------------------------------------------------------
+# Seed: # NOTE: Do not change the seed
+# grading compares your results to the reference output,
+# and a different seed will produce different model results.
+# -----------------------------------------------------------
+set.seed(123)
+
+# -----------------------------
+# Load datasets
+# -----------------------------
+train_dataset <- read.csv("data/dc3_trainDataset.csv")
+test_dataset  <- read.csv("data/dc3_testDataset.csv")
+
+# Print first few rows to check the datasets
+head(train_dataset)
+head(test_dataset)
+
+# -----------------------------
+# Question 1
+# -----------------------------
+
+#Choose which columns to use as predictors. Remove target(congestion)
+#and speed_ngh_432
+model_formula <- congestion ~ . - speed_main - speed_ngh_432
+
+#Create CART model
+cart_model <- rpart(model_formula, data = train_dataset, method = "class",
+                    control = rpart.control(cp = CART_CP))
+
+#Create Random Forrest Model
+rf_model <- randomForest(
+  model_formula,
+  data = train_dataset,
+  mtry = max(1, min(MTRY_RF, ncol(train_dataset) - 1 - 2)),  # rough; see note below
+  ntree = NTREE_RF,
+  importance = TRUE
+)
+
+#Create XGBoose Model
+# (4) XGBoost: build matrix from the same formula
+X_train <- model.matrix(model_formula, train_dataset)[, -1, drop = FALSE]
+y_train <- train_dataset$congestion
+
+dtrain <- xgb.DMatrix(data = X_train, label = y_train)
+
+params <- list(
+  objective = "binary:logistic",
+  eval_metric = "logloss",
+  max_depth = MAX_DEPTH_XG,
+  eta = ETA_XG,
+  colsample_bytree = COLSAMPLE_XG,
+  min_child_weight = MIN_CHILD_WEIGHT_XG,
+  subsample = SUBSAMPLE_XG
+)
+
+xgb_model <- xgb.train(params = params, data = dtrain, nrounds = NROUNDS_XG, verbose = 0)
+
+#Create variable importance table
+summarize_feature_importance_trees(
+  models = list(cart_model, rf_model, xgb_model),
+  model_names = c("CART", "Random Forest", "XGBoost"),
+  output_prefix = "tables/feature_importance_table"
+)

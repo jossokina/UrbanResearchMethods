@@ -1,0 +1,21 @@
+
+% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
+% Date and time: Πεμ, Ιαν 29, 2026 - 1:15:04 μμ
+\begin{table}[!htbp] \centering 
+  \caption{\textcolor{Green}{Correct Variable Importance Table of Models}} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & Feature & CART & Random Forest & XGBoost \\ 
+\hline \\[-1.8ex] 
+1 & flow\_main & $0.326$ & $0.313$ & $0.433$ \\ 
+2 & week & $0.250$ & $0.225$ & $0.370$ \\ 
+3 & hour8 & $0.153$ & $0.263$ & $0.085$ \\ 
+4 & hour6 & $0.132$ & $0.028$ & $$ \\ 
+5 & hour7 & $0.069$ & $0.086$ & $0.019$ \\ 
+6 & year & $0.061$ & $$ & $0.073$ \\ 
+7 & hour9 & $0.009$ & $0.101$ & $0.015$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 

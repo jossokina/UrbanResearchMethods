@@ -1,0 +1,258 @@
+# =====================================================
+# MASTER DATA CREATION SCRIPT
+# Creates:
+#  - Assignment 1: FULL years, RAW train/test
+#  - Assignment 2: FULL years, CLEAN train/test
+#  - Assignment 3: CUTOFF years (0-5), CLEAN train/test
+# =====================================================
+
+library(here)
+library(readr)
+library(dplyr)
+library(purrr)
+library(tidyr)
+
+# =====================================================
+# PARAMETERS
+# =====================================================
+REF_SEGMENT <- 34
+REF_ID      <- "RWS01_MONIBAS_0011hrr0396ra"
+DATA_FOLDER <- here("./original_data")
+
+REQUIRED_COLS <- c(
+  "id_mloc_agg", "timeframe", "speed_mean", "flow_mean",
+  "nr_wegsegment", "date", "year", "month", "week"
+)
+
+KEEP_NGH <- c("400", "432")
+
+# Drop these columns ONLY for CLEAN outputs
+REMOVE_CLEAN_COLS <- c("flow_ngh_400", "flow_ngh_432", "speed_ngh_400")
+
+# Splits
+TRAIN_FRAC_FULL   <- 0.70   # for FULL years (assignment1 + assignment2)
+TRAIN_FRAC_CUTOFF <- 0.75   # for CUTOFF years (assignment3)
+
+# Cutoff years AFTER remapping (2010->0 etc)
+KEEP_YEARS_CUTOFF <- 0:5
+
+# Output folders
+dir.create("./assignment1/data", recursive = TRUE, showWarnings = FALSE)
+dir.create("./assignment2/data", recursive = TRUE, showWarnings = FALSE)
+dir.create("./assignment3/data", recursive = TRUE, showWarnings = FALSE)
+
+# =====================================================
+# HELPERS
+# =====================================================
+
+process_dataset <- function(file_path, ref_segment = REF_SEGMENT, ref_id = REF_ID) {
+  df <- read_csv(file_path, show_col_types = FALSE)
+  
+  df <- df %>%
+    filter(nr_wegsegment == ref_segment) %>%
+    select(all_of(REQUIRED_COLS))
+  
+  traffic_list <- split(df, df$id_mloc_agg)
+  
+  ref_id_short <- substr(ref_id, nchar(ref_id) - 4, nchar(ref_id))
+  
+  if (!ref_id %in% names(traffic_list)) {
+    stop(paste("Reference ID", ref_id, "not found in dataset", basename(file_path)))
+  }
+  
+  ref_df  <- traffic_list[[ref_id]]
+  other_ids <- setdiff(names(traffic_list), ref_id)
+  final_df <- ref_df
+  
+  for (other_id in other_ids) {
+    
+    short_id <- substr(other_id, nchar(other_id) - 4, nchar(other_id))
+    digits_only <- sub("([0-9]{3}).*", "\\1", short_id)
+    
+    df_other <- traffic_list[[other_id]][, c("date", "timeframe", "flow_mean", "speed_mean")]
+    
+    names(df_other) <- c(
+      "date",
+      "timeframe",
+      paste0("flow_ngh_", digits_only),
+      paste0("speed_ngh_", digits_only)
+    )
+    
+    final_df <- merge(final_df, df_other, by = c("date", "timeframe"), all.x = TRUE)
+  }
+  
+  final_df$id_mloc_agg <- ref_id_short
+  return(final_df)
+}
+
+# Build feature set:
+# - timeframe -> hour dummies
+# - optional drop_na
+# - optional year cutoff after remapping to 0..9
+build_feature_df <- function(all_data, drop_na = FALSE, year_cutoff = NULL) {
+  
+  needed_base <- c(
+    "date", "timeframe", "year", "week",
+    "speed_main", "flow_main",
+    paste0("flow_ngh_", KEEP_NGH),
+    paste0("speed_ngh_", KEEP_NGH)
+  )
+  
+  X <- all_data %>% select(any_of(needed_base))
+  
+  X <- X %>%
+    mutate(
+      date = as.Date(date),
+      year = as.integer(year),
+      week = as.integer(week)
+    )
+  
+  # Remap year to start at 0 (2010->0, ..., 2019->9)
+  min_year <- min(X$year, na.rm = TRUE)
+  X <- X %>% mutate(year = year - min_year)
+  
+  # Optional: keep only specific years (e.g. 0:5)
+  if (!is.null(year_cutoff)) {
+    X <- X %>% filter(year %in% year_cutoff)
+  }
+  
+  # Optionally drop NA (only on key columns)
+  if (drop_na) {
+    na_check_cols <- c(
+      "speed_main", "flow_main", "week",
+      paste0("flow_ngh_", KEEP_NGH),
+      paste0("speed_ngh_", KEEP_NGH)
+    )
+    X <- tidyr::drop_na(X, all_of(na_check_cols))
+  }
+  
+  # timeframe -> hour dummies
+  X$timeframe <- factor(X$timeframe)
+  timeframe_dummies <- model.matrix(~ timeframe - 1, X)
+  
+  X <- X %>% select(-timeframe)
+  X <- cbind(X, timeframe_dummies)
+  
+  # Rename timeframe dummies -> hour<id>
+  timeframe_cols <- grep("^timeframe", colnames(X), value = TRUE)
+  for (col in timeframe_cols) {
+    id <- sub("^timeframe", "", col)
+    colnames(X)[colnames(X) == col] <- paste0("hour", id)
+  }
+  
+  # Keep only hour6-hour9 rows and drop other hour columns
+  hour_keep <- c("hour6", "hour7", "hour8", "hour9")
+  hour_cols_present <- intersect(hour_keep, colnames(X))
+  
+  if (length(hour_cols_present) > 0) {
+    rs <- rowSums(X[, hour_cols_present, drop = FALSE] == 1)
+    X <- X[rs == 1, , drop = FALSE]
+    
+    all_hour_cols <- grep("^hour", colnames(X), value = TRUE)
+    drop_other_hours <- setdiff(all_hour_cols, hour_keep)
+    if (length(drop_other_hours) > 0) {
+      X <- X[, !(colnames(X) %in% drop_other_hours), drop = FALSE]
+    }
+  }
+  
+  if (drop_na) {
+    X <- X[complete.cases(X), , drop = FALSE]
+  }
+  
+  return(as.data.frame(X))
+}
+
+# Time-based split by date
+time_split_by_date <- function(X, train_frac) {
+  
+  stopifnot("date" %in% names(X))
+  X$date <- as.Date(X$date)
+  
+  dates_sorted <- sort(unique(X$date))
+  if (length(dates_sorted) < 2) stop("Not enough unique dates to do a time-based split.")
+  
+  cutoff_idx <- floor(length(dates_sorted) * train_frac)
+  cutoff_idx <- max(1, min(cutoff_idx, length(dates_sorted) - 1))
+  
+  train_dates <- dates_sorted[1:cutoff_idx]
+  test_dates  <- dates_sorted[(cutoff_idx + 1):length(dates_sorted)]
+  
+  train <- X[X$date %in% train_dates, , drop = FALSE]
+  test  <- X[X$date %in% test_dates,  , drop = FALSE]
+  
+  train <- train %>% select(-date)
+  test  <- test  %>% select(-date)
+  
+  list(train = train, test = test)
+}
+
+# =====================================================
+# LOAD + PROCESS ALL FILES ONCE
+# =====================================================
+data_files <- list.files(DATA_FOLDER, pattern = "gz2csv_reg_hr\\d+\\.csv", full.names = TRUE)
+all_data <- purrr::map_dfr(data_files, process_dataset)
+
+# Basic cleaning (same for all)
+all_data <- all_data %>%
+  rename(
+    speed_main = speed_mean,
+    flow_main  = flow_mean
+  ) %>%
+  mutate(
+    flow_main = ifelse(flow_main > 3500, NA, flow_main)
+  )
+
+# =====================================================
+# ASSIGNMENT 1: FULL YEARS - RAW
+# =====================================================
+X_full_raw <- build_feature_df(all_data, drop_na = FALSE, year_cutoff = NULL)
+splits_full_raw <- time_split_by_date(X_full_raw, train_frac = TRAIN_FRAC_FULL)
+
+train_A1 <- splits_full_raw$train
+test_A1  <- splits_full_raw$test
+
+write_csv(train_A1, "./assignment1/data/trainDataset.csv")
+write_csv(test_A1,  "./assignment1/data/testDataset.csv")
+
+cat("\n✅ Assignment 1 saved (FULL years, RAW):\n")
+cat(" - ./assignment1/data/trainDataset.csv\n")
+cat(" - ./assignment1/data/testDataset.csv\n")
+cat("Rows: train =", nrow(train_A1), " test =", nrow(test_A1), "\n")
+
+# =====================================================
+# ASSIGNMENT 2: FULL YEARS - CLEAN
+# =====================================================
+X_full_clean <- build_feature_df(all_data, drop_na = TRUE, year_cutoff = NULL)
+splits_full_clean <- time_split_by_date(X_full_clean, train_frac = TRAIN_FRAC_FULL)
+
+train_A2 <- splits_full_clean$train %>% select(-any_of(REMOVE_CLEAN_COLS))
+test_A2  <- splits_full_clean$test  %>% select(-any_of(REMOVE_CLEAN_COLS))
+
+write_csv(train_A2, "./assignment2/data/trainDataset_clean.csv")
+write_csv(test_A2,  "./assignment2/data/testDataset_clean.csv")
+
+cat("\n✅ Assignment 2 saved (FULL years, CLEAN):\n")
+cat(" - ./assignment2/data/trainDataset_clean.csv\n")
+cat(" - ./assignment2/data/testDataset_clean.csv\n")
+cat("Rows: train =", nrow(train_A2), " test =", nrow(test_A2), "\n")
+
+# =====================================================
+# ASSIGNMENT 3: CUTOFF YEARS (0-5) - CLEAN
+# =====================================================
+X_cut_clean <- build_feature_df(all_data, drop_na = TRUE, year_cutoff = KEEP_YEARS_CUTOFF)
+splits_cut_clean <- time_split_by_date(X_cut_clean, train_frac = TRAIN_FRAC_CUTOFF)
+
+train_A3 <- splits_cut_clean$train %>% select(-any_of(REMOVE_CLEAN_COLS))
+test_A3  <- splits_cut_clean$test  %>% select(-any_of(REMOVE_CLEAN_COLS))
+
+write_csv(train_A3, "./assignment3/data/trainDataset_clean.csv")
+write_csv(test_A3,  "./assignment3/data/testDataset_clean.csv")
+
+cat("\n✅ Assignment 3 saved (CUTOFF years 0-5, CLEAN):\n")
+cat(" - ./assignment3/data/trainDataset_clean.csv\n")
+cat(" - ./assignment3/data/testDataset_clean.csv\n")
+cat("Rows: train =", nrow(train_A3), " test =", nrow(test_A3), "\n")
+
+cat("\nYear check:\n")
+cat("Assignment 1/2 years (FULL): ", paste(sort(unique(train_A1$year)), collapse = ", "), "\n")
+cat("Assignment 3 years (CUTOFF):", paste(sort(unique(train_A3$year)), collapse = ", "), "\n")

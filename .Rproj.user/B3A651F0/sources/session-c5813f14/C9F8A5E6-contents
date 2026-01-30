@@ -1,0 +1,21 @@
+
+% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
+% Date and time: Πεμ, Ιαν 29, 2026 - 12:08:03 μμ
+\begin{table}[!htbp] \centering 
+  \caption{} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & Feature & CART & Random Forest & XGBoost \\ 
+\hline \\[-1.8ex] 
+1 & flow\_main & $0.326$ & $0.279$ & $0.413$ \\ 
+2 & week & $0.250$ & $0.314$ & $0.378$ \\ 
+3 & hour8 & $0.153$ & $0.258$ & $0.087$ \\ 
+4 & hour6 & $0.132$ & $0.012$ & $0.008$ \\ 
+5 & hour7 & $0.069$ & $0.041$ & $0.020$ \\ 
+6 & year & $0.061$ & $0.036$ & $0.080$ \\ 
+7 & hour9 & $0.009$ & $0.061$ & $0.015$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
