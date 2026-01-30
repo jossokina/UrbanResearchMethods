@@ -1,6 +1,6 @@
-# ==========================================================
-# Data Challenge 1 - Data analysis and variable selection
-# ==========================================================
+# =====================================================
+# Data Challenges 2 - Linear Models 
+# =====================================================
 library(dplyr)
 library(tidyr)
 library(caret)
@@ -10,16 +10,12 @@ library(olsrr)
 
 # Create directories for saving tables
 dir.create(file.path("tables"), recursive = TRUE)
-dir.create(file.path("figures"), recursive = TRUE)
 
 # -----------------------------
 # Load datasets
 # -----------------------------
-train_dataset <- read.csv("data/dc1_trainDataset.csv")
-test_dataset  <- read.csv("data/dc1_testDataset.csv")
-
-# target variable
-target_col <- "speed_main"
+train_dataset <- read.csv("data/dc2_trainDataset.csv")
+test_dataset  <- read.csv("data/dc2_testDataset.csv")
 
 # Print first few rows to check the datasets
 head(train_dataset)
@@ -30,17 +26,35 @@ head(test_dataset)
 # -----------------------------
 
 # -----------------------------
+# Model (a): Only flow
+# -----------------------------
+lm_flow_only <- 
+
+# -------------------------------------------
+# Model (b): All variables except speed_ngh
+# -------------------------------------------
+lm_all_but_speed <- 
+
+# -------------------------------------------
+# Model (c): All variables
+# -------------------------------------------
+lm_all_var <- 
+
+# -------------------------------------------
+# Model (d): Step forward function
+# -------------------------------------------
+step_forward_model <- 
+
+# -------------------------------------------
+# Summary Table
+# -------------------------------------------
+
+
+# -----------------------------
 # Question 2
 # -----------------------------
 
+
 # -----------------------------
 # Question 3
-# -----------------------------
-
-# -----------------------------
-# Question 4
-# -----------------------------
-
-# -----------------------------
-# Question 5
 # -----------------------------
