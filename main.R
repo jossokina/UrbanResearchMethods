@@ -16,14 +16,13 @@ dir.create(file.path("figures"), recursive = TRUE)
 # Load datasets
 # -----------------------------
 train_dataset <- read.csv("data/dc1_trainDataset.csv")
-test_dataset  <- read.csv("data/dc1_testDataset.csv")
+
 
 # target variable
 target_col <- "speed_main"
 
 # Print first few rows to check the datasets
 head(train_dataset)
-head(test_dataset)
 
 # -----------------------------
 # Question 1
