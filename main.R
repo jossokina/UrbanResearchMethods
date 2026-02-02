@@ -159,14 +159,5 @@ hour_analysis <- analyze_by_group(
   output_prefix = "tables/congestion_by_hour"
 )
 
-# Analyze congestion by week
-week_analysis <- analyze_by_group(
-  data = test_dataset,
-  group_col = "week",
-  pred_cols = c("congestion", "pred_cart", "pred_rf", "pred_xgb"),
-  output_prefix = "tables/congestion_by_week"
-)
-
 # Create visualizations
 plot_congestion_by_hour(hour_analysis, "figures/congestion_by_hour.pdf")
-plot_congestion_by_week(week_analysis, "figures/congestion_by_week.pdf")
