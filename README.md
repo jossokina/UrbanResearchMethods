@@ -1,5 +1,5 @@
 # Urban Research Methods
-## Data Challenge 1 – Instructions
+## Data Challenge 1: Preliminary Analysis
 
 This assignment is completed by **modifying and running specific code boxes** provided in the assignment document.
 
@@ -24,3 +24,4 @@ This assignment is completed by **modifying and running specific code boxes** pr
 ## Notes
 - Do **not** modify or add libraries; all required packages are already provided.
 - Run the code blocks exactly as instructed, adjusting only labels or variable selections when explicitly requested.
+
