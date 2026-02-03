@@ -8,6 +8,11 @@ library(stargazer)
 library(Metrics)
 library(olsrr)
 
+#  =================== WARNING ======================== 
+# The session will time out after inactivity of 10 minutes. If you are taking a break, ALWAYS export
+# your script. See canvas for how to do this.
+#  =====================================================
+
 # Create directories for saving tables
 dir.create(file.path("tables"), recursive = TRUE)
 dir.create(file.path("figures"), recursive = TRUE)
