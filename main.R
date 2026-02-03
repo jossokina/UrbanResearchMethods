@@ -11,6 +11,11 @@ library(stargazer)    # summary tables
 library(tibble)       # tibble support
 library(Metrics)
 
+#  =================== WARNING ======================== 
+# The session will time out after inactivity of 10 minutes. If you are taking a break, ALWAYS export
+# your script. See canvas for how to do this.
+#  =====================================================
+
 dir.create(file.path("tables"), recursive = TRUE)
 dir.create(file.path("figures"), recursive = TRUE)
 
