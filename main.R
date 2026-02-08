@@ -165,4 +165,4 @@ hour_analysis <- analyze_by_group(
 )
 
 # Create visualizations
-plot_congestion_by_hour(hour_analysis, "figures/congestion_by_hour.pdf")
+plot_congestion_by_hour(hour_analysis, "figures/congestion_by_hour.png")
