@@ -54,18 +54,19 @@ head(train_dataset)
 head(test_dataset)
 
 # -----------------------------
-# Question 1
+# Question 1 - Task 1
 # -----------------------------
 
-#Choose which columns to use as predictors. Remove target(congestion)
-#and speed_ngh_432
+# Use all variables to predict congestion, excluding speed_main and speed_ngh_432
 model_formula <- congestion ~ . - speed_main - speed_ngh_432
 
-#Create CART model
+# Create and train all 3 models to obtain the variable importance 
+
+# Create and train the CART model
 cart_model <- rpart(model_formula, data = train_dataset, method = "class",
                     control = rpart.control(cp = CART_CP))
 
-#Create Random Forrest Model
+# Create and train the Random Forest Model
 predictor_cols <- setdiff(names(train_dataset), 
                           c("congestion", "speed_main", "speed_ngh_432"))
 
@@ -77,8 +78,7 @@ rf_model <- randomForest(
   importance = TRUE
 )
 
-#Create XGBoose Model
-# (4) XGBoost: build matrix from the same formula
+# Create the XGBoost Model
 X_train <- model.matrix(model_formula, train_dataset)[, -1, drop = FALSE]
 y_train <- train_dataset$congestion
 
@@ -94,9 +94,10 @@ params <- list(
   subsample = SUBSAMPLE_XG
 )
 
+# Train the XGBoost model, may take a while
 xgb_model <- xgb.train(params = params, data = dtrain, nrounds = NROUNDS_XG, verbose = 0)
 
-#Create variable importance table
+# Create variable importance table including all models
 summarize_feature_importance_trees(
   models = list(cart_model, rf_model, xgb_model),
   model_names = c("CART", "Random Forest", "XGBoost"),
@@ -104,24 +105,24 @@ summarize_feature_importance_trees(
 )
 
 # -----------------------------
-# Question 2
+# Question 2 - Task 5
 # -----------------------------
 
 # XGBoost test matrix using SAME formula
 X_test <- model.matrix(model_formula, test_dataset)[, -1, drop = FALSE]
 
-# CART
+# CART Model predictions on test data
 pred_cart <- as.integer(as.character(predict(cart_model, newdata = test_dataset, type = "class")))
 
-# Random Forest (trained with formula, so predict() can take full test_dataset)
+# Random Forest Model predictions on test data
 pred_rf <- as.integer(as.character(predict(rf_model, newdata = test_dataset, type = "class")))
 
-# XGBoost
+# XGBoost Model predictions on test data
 p_xgb <- predict(xgb_model, newdata = X_test)
 pred_xgb <- ifelse(p_xgb >= 0.5, 1, 0)
 
 # -----------------------------
-# Confusion matrices + save
+# Separate Confusion matrices for all models + save
 # -----------------------------
 res_cart <- make_confusion(test_dataset$congestion, pred_cart)
 save_cm(res_cart$cm, "CART", "tables/cm_cart")
@@ -132,9 +133,13 @@ save_cm(res_rf$cm, "Random Forest", "tables/cm_random_forest")
 res_xgb <- make_confusion(test_dataset$congestion, pred_xgb)
 save_cm(res_xgb$cm, "XGBoost", "tables/cm_xgboost")
 
+
+
 # -----------------------------
-# Metrics table + save (.tex and .html) via function
+# Question 3 - Task 9
 # -----------------------------
+
+# Metrics table + save (.tex and .html) via function for all 3 models
 metrics_table <- make_metrics_table(
   model_names  = c("CART", "Random Forest", "XGBoost"),
   results_list = list(res_cart, res_rf, res_xgb),
@@ -142,10 +147,10 @@ metrics_table <- make_metrics_table(
 )
 
 # -----------------------------
-# Question 3
+# Question 4 - Task 14
 # -----------------------------
 
-# Add predictions to test dataset
+# Add predictions of each model to the test dataset as a new column
 test_dataset$pred_cart <- pred_cart
 test_dataset$pred_rf <- pred_rf
 test_dataset$pred_xgb <- pred_xgb
@@ -156,7 +161,7 @@ test_dataset$hour <- ifelse(test_dataset$hour6 == 1, 6,
                                    ifelse(test_dataset$hour8 == 1, 8,
                                           ifelse(test_dataset$hour9 == 1, 9, NA))))
 
-# Analyze congestion by hour
+# Analyze congestion by hour and save the table
 hour_analysis <- analyze_by_group(
   data = test_dataset,
   group_col = "hour",
@@ -164,5 +169,5 @@ hour_analysis <- analyze_by_group(
   output_prefix = "tables/congestion_by_hour"
 )
 
-# Create visualizations
+# Create visualizations to better compare the models (optional)
 plot_congestion_by_hour(hour_analysis, "figures/congestion_by_hour.png")
