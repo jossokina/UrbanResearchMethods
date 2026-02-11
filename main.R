@@ -146,6 +146,20 @@ metrics_table <- make_metrics_table(
   output_prefix = "tables/test_metrics_summary"
 )
 
+
+# -----------------------------
+# Question 3 - Task 11
+# -----------------------------
+
+# Get the counts of congestion in the dataset (number of 0 and 1 entries)
+counts <- table(train_dataset$congestion)
+print(counts)
+
+# Calculate the imbalance ratio (majority class / minority class)
+imbalance_ratio <- max(counts) / min(counts)
+print(imbalance_ratio)
+
+
 # -----------------------------
 # Question 4 - Task 14
 # -----------------------------
